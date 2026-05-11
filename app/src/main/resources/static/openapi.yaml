@@ -3,7 +3,7 @@ info:
   title: API de Gestión de Árboles - Plan de Cuentas Contable
   description: |
     Especificación del contrato OpenAPI para el Sistema de Gestión de Estructuras Jerárquicas.
-    Diseñado específicamente para el Caso de Uso 5: Plan de Cuentas Contable (ej. "1 Activo > 1.1 Caja > 1.1.1 Caja General").
+    Diseñado específicamente para el Caso de Uso 5: Plan de Cuentas Contable.
     Este contrato es el estándar unificado e idéntico para cualquier combinación de motor y persistencia.
   version: 1.0.0
 
@@ -70,6 +70,10 @@ paths:
       responses:
         '201':
           description: Subcuenta agregada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
         '404':
           description: Cuenta padre no encontrada
         '500':
@@ -94,27 +98,30 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /tree/{nodeId}:
-    get:
-      tags:
-        - Estructura
-      summary: Obtener subárbol (Operación 4)
-      description: Retorna la jerarquía a partir de una cuenta específica.
-      operationId: getSubtree
-      parameters:
-        - name: nodeId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Subárbol recuperado
-        '404':
-          description: Cuenta no encontrada
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+		  /tree/{nodeId}:
+		      get:
+		        tags:
+		          - Estructura
+		        summary: Obtener subárbol (Operación 4)
+		        description: Retorna la jerarquía a partir de una cuenta específica como un objeto anidado.
+		        operationId: getSubtree
+		        parameters:
+		          - name: nodeId
+		            in: path
+		            required: true
+		            schema:
+		              type: string
+		        responses:
+		          '200':
+		            description: Subárbol recuperado exitosamente
+		            content:
+		              application/json:
+		                schema:
+		                  $ref: '#/components/schemas/TreeNode' # <--- CAMBIO: Quité el 'type: array'
+		          '404':
+		            description: Cuenta no encontrada
+		          '500':
+		            $ref: '#/components/responses/InternalError'
   /nodes/{nodeId}/path:
     get:
       tags:
@@ -251,27 +258,50 @@ components:
     NodeRequest:
       type: object
       required:
-        - value
+        - code
+        - name
+        - type
       properties:
-        value:
+        code:
           type: string
-          description: Código y nombre de la cuenta (ej. "1.1 Caja")
-          example: '1.1 Caja'
-          minLength: 1
-          maxLength: 100
+          description: Código numérico de la cuenta contable
+          example: '1.1.1'
+        name:
+          type: string
+          description: Nombre descriptivo de la cuenta
+          example: 'Caja General'
+        type:
+          type: string
+          description: Clasificación de la cuenta
+          example: 'Activo'
+        description:
+          type: string
+          description: Detalles adicionales u observaciones
+          example: 'Efectivo disponible en la caja principal'
 
     Node:
       type: object
       required:
         - id
-        - value
+        - code
+        - name
+        - type
       properties:
         id:
           type: string
           example: 'e6a3b9ad-0304-4ccc-8e9a-663ce6dac705'
-        value:
+        code:
           type: string
-          example: '1.1 Caja'
+          example: '1.1.1'
+        name:
+          type: string
+          example: 'Caja General'
+        type:
+          type: string
+          example: 'Activo'
+        description:
+          type: string
+          example: 'Efectivo disponible en la caja principal'
         parentId:
           type: string
           nullable: true
