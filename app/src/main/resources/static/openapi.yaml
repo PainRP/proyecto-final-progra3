@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: API de Gestión de Árboles - Plan de Cuentas Contable
+  description: |
+    Especificación del contrato OpenAPI para el Sistema de Gestión de Estructuras Jerárquicas.
+    Diseñado específicamente para el Caso de Uso 5: Plan de Cuentas Contable (ej. "1 Activo > 1.1 Caja > 1.1.1 Caja General").
+    Este contrato es el estándar unificado e idéntico para cualquier combinación de motor y persistencia.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+
+tags:
+  - name: Nodos
+    description: Operaciones sobre cuentas contables individuales y sus relaciones directas.
+  - name: Estructura
+    description: Operaciones de cálculo, recorrido y validación de la jerarquía completa.
+
+paths:
+  /nodes/root:
+    post:
+      tags:
+        - Nodos
+      summary: Crear cuenta raíz (Operación 1)
+      description: Inicializa el plan de cuentas contable creando el nodo raíz (por ejemplo, "1 Activo").
+      operationId: createRoot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRequest'
+      responses:
+        '201':
+          description: Cuenta raíz creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '409':
+          description: Conflicto - Ya existe una cuenta raíz en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /nodes/{parentId}/children:
+    post:
+      tags:
+        - Nodos
+      summary: Agregar cuenta hija (Operación 2)
+      description: Agrega una subcuenta a una cuenta contable padre ya existente.
+      operationId: addChild
+      parameters:
+        - name: parentId
+          in: path
+          required: true
+          description: ID único de la cuenta contable padre
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRequest'
+      responses:
+        '201':
+          description: Subcuenta agregada exitosamente
+        '404':
+          description: Cuenta padre no encontrada
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tree:
+    get:
+      tags:
+        - Estructura
+      summary: Obtener plan de cuentas completo (Operación 3)
+      description: Retorna la estructura jerárquica completa en formato JSON anidado.
+      operationId: getFullTree
+      responses:
+        '200':
+          description: Estructura completa recuperada con éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeNode'
+        '404':
+          description: No se ha inicializado el plan de cuentas
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tree/{nodeId}:
+    get:
+      tags:
+        - Estructura
+      summary: Obtener subárbol (Operación 4)
+      description: Retorna la jerarquía a partir de una cuenta específica.
+      operationId: getSubtree
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subárbol recuperado
+        '404':
+          description: Cuenta no encontrada
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /nodes/{nodeId}/path:
+    get:
+      tags:
+        - Estructura
+      summary: Ruta desde la raíz a un nodo (Operación 5)
+      description: Camino secuencial desde la raíz hasta la cuenta destino.
+      operationId: getPath
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ruta recuperada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+        '404':
+          description: Cuenta no encontrada
+
+  /tree/traversal:
+    get:
+      tags:
+        - Estructura
+      summary: Recorrido DFS o BFS (Operaciones 6 y 7)
+      description: Retorna un listado plano ordenado por el algoritmo seleccionado.
+      operationId: getTraversal
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [DFS, BFS]
+      responses:
+        '200':
+          description: Recorrido completado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+
+  /tree/height:
+    get:
+      tags:
+        - Estructura
+      summary: Altura del árbol (Operación 8)
+      description: Calcula el número de niveles máximos del plan de cuentas.
+      operationId: getHeight
+      responses:
+        '200':
+          description: Altura calculada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeightResponse'
+
+  /nodes/{nodeId}/depth:
+    get:
+      tags:
+        - Nodos
+      summary: Profundidad de un nodo (Operación 9)
+      description: Calcula el nivel de una cuenta respecto a la raíz.
+      operationId: getDepth
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profundidad obtenida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepthResponse'
+
+  /nodes/{nodeId}/ancestors:
+    get:
+      tags:
+        - Estructura
+      summary: Ancestros de un nodo (Operación 10)
+      description: Lista plana de nodos ascendentes hasta la raíz.
+      operationId: getAncestors
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ancestros recuperados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+
+  /tree/validate:
+    get:
+      tags:
+        - Estructura
+      summary: Validar que no haya ciclos (Operación 11)
+      description: Verifica que no existan ciclos que rompan la jerarquía.
+      operationId: validateNoCycles
+      responses:
+        '200':
+          description: Validación completada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+
+components:
+  responses:
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    NodeRequest:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: Código y nombre de la cuenta (ej. "1.1 Caja")
+          example: '1.1 Caja'
+          minLength: 1
+          maxLength: 100
+
+    Node:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          type: string
+          example: 'e6a3b9ad-0304-4ccc-8e9a-663ce6dac705'
+        value:
+          type: string
+          example: '1.1 Caja'
+        parentId:
+          type: string
+          nullable: true
+          example: 'c6a3b9ad-0304-4ccc-8e9a-663ce6dac705'
+
+    TreeNode:
+      allOf:
+        - $ref: '#/components/schemas/Node'
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: '#/components/schemas/TreeNode'
+
+    HeightResponse:
+      type: object
+      required: [height]
+      properties:
+        height:
+          type: integer
+          example: 3
+
+    DepthResponse:
+      type: object
+      required: [depth]
+      properties:
+        depth:
+          type: integer
+          example: 2
+
+    ValidationResponse:
+      type: object
+      required: [valid, message]
+      properties:
+        valid:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'El árbol es válido.'
+
+    ErrorResponse:
+      type: object
+      required: [timestamp, status, error, message, path]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
