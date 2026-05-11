@@ -11,12 +11,12 @@ public class Node {
     private String description;
     private List<Node> children;
 
-    // Constructor vacío
+    
     public Node() {
         this.children = new ArrayList<>();
     }
 
-    // Constructor con parámetros
+ 
     public Node(String id, String code, String name, String type, String description) {
         this.id = id;
         this.code = code;
@@ -26,7 +26,7 @@ public class Node {
         this.children = new ArrayList<>();
     }
 
-    // Getters y Setters
+    
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
