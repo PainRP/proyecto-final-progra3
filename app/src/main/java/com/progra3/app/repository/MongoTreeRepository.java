@@ -12,11 +12,14 @@ import com.progra3.treeengine.model.Node;
 @Primary
 public class MongoTreeRepository implements TreeRepository {
 
-    private final MongoNodeRepository mongoNodeRepository;
-    private String rootId;
+    private static final String ROOT_CONFIG_ID = "ROOT";
 
-    public MongoTreeRepository(MongoNodeRepository mongoNodeRepository) {
+    private final MongoNodeRepository mongoNodeRepository;
+    private final MongoRootRepository mongoRootRepository;
+
+    public MongoTreeRepository(MongoNodeRepository mongoNodeRepository, MongoRootRepository mongoRootRepository) {
         this.mongoNodeRepository = mongoNodeRepository;
+        this.mongoRootRepository = mongoRootRepository;
     }
 
     @Override
@@ -35,12 +38,18 @@ public class MongoTreeRepository implements TreeRepository {
 
     @Override
     public void setRootId(String rootId) {
-        this.rootId = rootId;
+        RootDocument config = mongoRootRepository.findById(ROOT_CONFIG_ID)
+                .orElse(new RootDocument(ROOT_CONFIG_ID, rootId));
+
+        config.setRootId(rootId);
+        mongoRootRepository.save(config);
     }
 
     @Override
     public String getRootId() {
-        return rootId;
+        return mongoRootRepository.findById(ROOT_CONFIG_ID)
+                .map(RootDocument::getRootId)
+                .orElse(null);
     }
 
     @Override
@@ -54,4 +63,4 @@ public class MongoTreeRepository implements TreeRepository {
 
         return nodes;
     }
-}sss
+}
