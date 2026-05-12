@@ -31,7 +31,15 @@ public class MongoTreeRepository implements TreeRepository {
     }
 
     private void saveFlatNode(Node node, String parentId) {
-        mongoNodeRepository.save(new NodeDocument(node, parentId));
+        String finalParentId = parentId;
+
+        if (finalParentId == null) {
+            finalParentId = mongoNodeRepository.findById(node.getId())
+                    .map(NodeDocument::getParentId)
+                    .orElse(null);
+        }
+
+        mongoNodeRepository.save(new NodeDocument(node, finalParentId));
 
         if (node.getChildren() != null) {
             for (Node child : node.getChildren()) {
