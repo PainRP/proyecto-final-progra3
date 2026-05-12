@@ -1,15 +1,17 @@
 package com.progra3.app.repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.context.annotation.Primary;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.progra3.treeengine.model.Node;
 
 @Repository
-@Primary
+@ConditionalOnProperty(name = "app.storage", havingValue = "mongo")
 public class MongoTreeRepository implements TreeRepository {
 
     private static final String ROOT_CONFIG_ID = "ROOT";
@@ -24,16 +26,23 @@ public class MongoTreeRepository implements TreeRepository {
 
     @Override
     public Node save(Node node) {
-        NodeDocument document = new NodeDocument(node);
-        NodeDocument saved = mongoNodeRepository.save(document);
-        return saved.toNode();
+        saveFlatNode(node, null);
+        return findById(node.getId());
+    }
+
+    private void saveFlatNode(Node node, String parentId) {
+        mongoNodeRepository.save(new NodeDocument(node, parentId));
+
+        if (node.getChildren() != null) {
+            for (Node child : node.getChildren()) {
+                saveFlatNode(child, node.getId());
+            }
+        }
     }
 
     @Override
     public Node findById(String id) {
-        return mongoNodeRepository.findById(id)
-                .map(NodeDocument::toNode)
-                .orElse(null);
+        return findAll().get(id);
     }
 
     @Override
@@ -55,10 +64,32 @@ public class MongoTreeRepository implements TreeRepository {
     @Override
     public Map<String, Node> findAll() {
         Map<String, Node> nodes = new HashMap<>();
+        Map<String, String> parentByNode = new HashMap<>();
 
         for (NodeDocument document : mongoNodeRepository.findAll()) {
             Node node = document.toNode();
+            node.setChildren(new ArrayList<>());
+
             nodes.put(node.getId(), node);
+            parentByNode.put(node.getId(), document.getParentId());
+        }
+
+        for (Map.Entry<String, String> entry : parentByNode.entrySet()) {
+            String nodeId = entry.getKey();
+            String parentId = entry.getValue();
+
+            if (parentId != null && nodes.containsKey(parentId)) {
+                Node parent = nodes.get(parentId);
+                Node child = nodes.get(nodeId);
+
+                List<Node> children = parent.getChildren();
+                if (children == null) {
+                    children = new ArrayList<>();
+                    parent.setChildren(children);
+                }
+
+                children.add(child);
+            }
         }
 
         return nodes;
