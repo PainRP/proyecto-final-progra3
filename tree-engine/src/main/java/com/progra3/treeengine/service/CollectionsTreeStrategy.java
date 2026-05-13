@@ -26,7 +26,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
     }
 
     @Override
-    public List getChildren(String parentId) {
+    public List<Node> getChildren(String parentId) {
         if (root == null) {
             return new ArrayList<>();
         }
@@ -45,8 +45,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
             return current;
         }
 
-        for (Object childObject : current.getChildren()) {
-            Node child = (Node) childObject;
+        for (Node child : current.getChildren()) {
             Node found = findNodeById(child, id);
 
             if (found != null) {
