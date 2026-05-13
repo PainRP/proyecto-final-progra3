@@ -1,14 +1,14 @@
 package com.progra3.app.service;
 
-import com.progra3.app.repository.InMemoryTreeRepository;
-import com.progra3.app.repository.TreeRepository;
-import com.progra3.treeengine.model.Node;
-import com.progra3.treeengine.service.TreeAlgorithmStrategy;
-import com.progra3.treeengine.service.CustomTreeStrategy;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.progra3.app.repository.TreeRepository;
+import com.progra3.treeengine.model.Node;
+import com.progra3.treeengine.service.CustomTreeStrategy;
+import com.progra3.treeengine.service.TreeAlgorithmStrategy;
 
 @Service
 public class TreeOrchestratorService {
@@ -16,9 +16,9 @@ public class TreeOrchestratorService {
     private final TreeRepository repository;
     private final TreeAlgorithmStrategy strategy;
 
-    public TreeOrchestratorService(TreeRepository repository, TreeAlgorithmStrategy strategy) {
+    public TreeOrchestratorService(TreeRepository repository) {
         this.repository = repository;
-        this.strategy = strategy; 
+        this.strategy = new CustomTreeStrategy();
     }
 
     public Node createRoot(Node rootNode) {
@@ -27,18 +27,16 @@ public class TreeOrchestratorService {
         return repository.save(processedNode);
     }
 
- 
     public Node addChild(String parentId, Node childNode) {
-        
         Node parent = repository.findById(parentId);
         if (parent == null) {
             throw new IllegalArgumentException("Padre no encontrado");
         }
-        
+
         Node updatedChild = strategy.addChild(parent, childNode);
-        
-        repository.save(parent); 
-        return repository.save(updatedChild); 
+
+        repository.save(parent);
+        return repository.save(updatedChild);
     }
 
     public List<Node> getChildren(String parentId) {
@@ -48,7 +46,7 @@ public class TreeOrchestratorService {
         }
         return new ArrayList<>();
     }
-    
+
     public Node getFullTree() {
         String rootId = repository.getRootId();
         if (rootId == null) {
