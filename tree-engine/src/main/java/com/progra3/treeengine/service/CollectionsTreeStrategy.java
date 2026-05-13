@@ -8,6 +8,12 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     private Node root;
 
+    /*
+     * Estructura usada:
+     * - ArrayList para manejar la lista de hijos de cada nodo.
+     * - Búsqueda recursiva sobre el árbol para localizar nodos por id.
+     * Esta clase solo contiene lógica pura del motor y no interactúa con repositorios.
+     */
     @Override
     public Node createRoot(Node rootNode) {
         this.root = rootNode;
