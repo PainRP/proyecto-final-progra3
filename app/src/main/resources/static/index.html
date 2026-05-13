@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plan de Cuentas - Proyecto Final</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f4f6f8;
+            color: #222;
+        }
+
+        h1 {
+            color: #1f2937;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            max-width: 850px;
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            min-height: 120px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Plan de Cuentas</h1>
+        <p>Visualización básica del árbol de cuentas usando Spring Boot y MongoDB.</p>
+
+        <button id="btnCargar">Cargar árbol completo</button>
+
+        <pre id="resultado">Cargando datos...</pre>
+    </div>
+
+    <script>
+        async function cargarArbol() {
+            const resultado = document.getElementById('resultado');
+            resultado.textContent = 'Consultando backend...';
+
+            try {
+                const response = await fetch('/api/tree');
+
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar el árbol');
+                }
+
+                const data = await response.json();
+                resultado.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultado.textContent = 'Error al cargar datos: ' + error.message;
+            }
+        }
+
+        document.getElementById('btnCargar').addEventListener('click', cargarArbol);
+
+        cargarArbol();
+    </script>
+</body>
+</html>

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
-import com.progra3.treeengine.service.CustomTreeStrategy;
 import com.progra3.treeengine.service.TreeAlgorithmStrategy;
 
 @Service
@@ -16,9 +15,9 @@ public class TreeOrchestratorService {
     private final TreeRepository repository;
     private final TreeAlgorithmStrategy strategy;
 
-    public TreeOrchestratorService(TreeRepository repository) {
+    public TreeOrchestratorService(TreeRepository repository, TreeAlgorithmStrategy strategy) {
         this.repository = repository;
-        this.strategy = new CustomTreeStrategy();
+        this.strategy = strategy;
     }
 
     public Node createRoot(Node rootNode) {
@@ -29,6 +28,7 @@ public class TreeOrchestratorService {
 
     public Node addChild(String parentId, Node childNode) {
         Node parent = repository.findById(parentId);
+
         if (parent == null) {
             throw new IllegalArgumentException("Padre no encontrado");
         }
@@ -41,17 +41,21 @@ public class TreeOrchestratorService {
 
     public List<Node> getChildren(String parentId) {
         Node parent = repository.findById(parentId);
+
         if (parent != null) {
             return parent.getChildren();
         }
+
         return new ArrayList<>();
     }
 
     public Node getFullTree() {
         String rootId = repository.getRootId();
+
         if (rootId == null) {
             return null;
         }
+
         return repository.findById(rootId);
     }
 }
