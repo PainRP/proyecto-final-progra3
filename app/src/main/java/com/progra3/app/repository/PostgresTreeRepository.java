@@ -4,6 +4,7 @@ import com.progra3.app.entity.NodeEntity;
 import com.progra3.treeengine.model.Node;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 @Repository
 @Profile("postgres")
+@Transactional
 public class PostgresTreeRepository implements TreeRepository {
 
     private final JpaNodeRepository jpaNodeRepository;
@@ -27,6 +29,19 @@ public class PostgresTreeRepository implements TreeRepository {
     }
 
     @Override
+    public Node saveChild(String parentId, Node childNode) {
+        NodeEntity parent = jpaNodeRepository.findById(Long.valueOf(parentId))
+                .orElseThrow(() -> new IllegalArgumentException("Padre no encontrado"));
+
+        NodeEntity child = toEntity(childNode);
+        child.setParent(parent);
+
+        NodeEntity savedChild = jpaNodeRepository.save(child);
+        return toNode(savedChild);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Node findById(String id) {
         if (id == null) {
             return null;
@@ -45,6 +60,7 @@ public class PostgresTreeRepository implements TreeRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getRootId() {
         return jpaNodeRepository.findByParentIsNull()
                 .map(entity -> String.valueOf(entity.getId()))
@@ -52,6 +68,7 @@ public class PostgresTreeRepository implements TreeRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Node> findAll() {
         Map<String, Node> nodes = new HashMap<>();
 

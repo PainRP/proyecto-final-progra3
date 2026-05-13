@@ -21,8 +21,9 @@ public class TreeOrchestratorService {
 
     public Node createRoot(Node rootNode) {
         Node processedNode = strategy.createRoot(rootNode);
-        repository.setRootId(processedNode.getId());
-        return repository.save(processedNode);
+        Node savedNode = repository.save(processedNode);
+        repository.setRootId(savedNode.getId());
+        return savedNode;
     }
 
     public Node addChild(String parentId, Node childNode) {
@@ -31,10 +32,8 @@ public class TreeOrchestratorService {
             throw new IllegalArgumentException("Padre no encontrado");
         }
 
-        Node updatedChild = strategy.addChild(parent, childNode);
-
-        repository.save(parent);
-        return repository.save(updatedChild);
+        Node processedChild = strategy.addChild(parent, childNode);
+        return repository.saveChild(parentId, processedChild);
     }
 
     public List<Node> getChildren(String parentId) {

@@ -19,6 +19,11 @@ public class InMemoryTreeRepository implements TreeRepository {
         return node;
     }
 
+    public Node saveChild(String parentId, Node childNode) {
+        storage.put(childNode.getId(), childNode);
+        return childNode;
+    }
+
     public Node findById(String id) {
         return storage.get(id);
     }
