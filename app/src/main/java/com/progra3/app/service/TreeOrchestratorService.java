@@ -4,7 +4,6 @@ import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
 import com.progra3.treeengine.service.TreeAlgorithmStrategy;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 
