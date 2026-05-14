@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.progra3.treeengine.service.CollectionsTreeStrategy;
 import com.progra3.treeengine.service.CustomTreeStrategy;
 import com.progra3.treeengine.service.TreeAlgorithmStrategy;
 
@@ -19,5 +20,12 @@ public class TreeStrategyConfig {
     public TreeAlgorithmStrategy customTreeStrategy() {
         log.info("Cargando estrategia de arbol: custom");
         return new CustomTreeStrategy();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.tree-strategy", havingValue = "collections")
+    public TreeAlgorithmStrategy collectionsTreeStrategy() {
+        log.info("Cargando estrategia de arbol: collections");
+        return new CollectionsTreeStrategy();
     }
 }
