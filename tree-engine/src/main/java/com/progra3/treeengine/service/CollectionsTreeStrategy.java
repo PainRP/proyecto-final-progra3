@@ -1,34 +1,64 @@
 package com.progra3.treeengine.service;
 
+import com.progra3.treeengine.model.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.progra3.treeengine.model.Node;
-
 public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
+    private Node root;
+
+    /*
+     * Estructura usada:
+     * - ArrayList para manejar la lista de hijos de cada nodo.
+     * - Búsqueda recursiva sobre el árbol para localizar nodos por id.
+     * Esta clase solo contiene lógica pura del motor y no interactúa con repositorios.
+     */
     @Override
     public Node createRoot(Node rootNode) {
-        return rootNode;
+        this.root = rootNode;
+        return this.root;
     }
 
     @Override
     public Node addChild(Node parent, Node childNode) {
-        if (parent.getChildren() == null) {
-            parent.setChildren(new ArrayList<>());
-        }
-
-        parent.getChildren().add(childNode);
+        parent.addChild(childNode);
         return childNode;
     }
 
     @Override
     public Node getRoot() {
-        return null;
+        return this.root;
     }
 
     @Override
     public List<Node> getChildren(String parentId) {
-        return new ArrayList<>();
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        Node parent = findNodeById(root, parentId);
+
+        if (parent == null) {
+            return new ArrayList<>();
+        }
+
+        return parent.getChildren();
+    }
+
+    private Node findNodeById(Node current, String id) {
+        if (current.getId() != null && current.getId().equals(id)) {
+            return current;
+        }
+
+        for (Node child : current.getChildren()) {
+            Node found = findNodeById(child, id);
+
+            if (found != null) {
+                return found;
+            }
+        }
+
+        return null;
     }
 }

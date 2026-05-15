@@ -1,13 +1,11 @@
 package com.progra3.app.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
 import com.progra3.treeengine.service.TreeAlgorithmStrategy;
+import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TreeOrchestratorService {
@@ -22,8 +20,9 @@ public class TreeOrchestratorService {
 
     public Node createRoot(Node rootNode) {
         Node processedNode = strategy.createRoot(rootNode);
-        repository.setRootId(processedNode.getId());
-        return repository.save(processedNode);
+        Node savedNode = repository.save(processedNode);
+        repository.setRootId(savedNode.getId());
+        return savedNode;
     }
 
     public Node addChild(String parentId, Node childNode) {
@@ -33,10 +32,8 @@ public class TreeOrchestratorService {
             throw new IllegalArgumentException("Padre no encontrado");
         }
 
-        Node updatedChild = strategy.addChild(parent, childNode);
-
-        repository.save(parent);
-        return repository.save(updatedChild);
+        Node processedChild = strategy.addChild(parent, childNode);
+        return repository.saveChild(parentId, processedChild);
     }
 
     public List<Node> getChildren(String parentId) {
