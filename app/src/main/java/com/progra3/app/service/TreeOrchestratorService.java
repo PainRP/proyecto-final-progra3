@@ -27,6 +27,7 @@ public class TreeOrchestratorService {
 
     public Node addChild(String parentId, Node childNode) {
         Node parent = repository.findById(parentId);
+
         if (parent == null) {
             throw new IllegalArgumentException("Padre no encontrado");
         }
@@ -37,17 +38,21 @@ public class TreeOrchestratorService {
 
     public List<Node> getChildren(String parentId) {
         Node parent = repository.findById(parentId);
+
         if (parent != null) {
             return parent.getChildren();
         }
+
         return new ArrayList<>();
     }
 
     public Node getFullTree() {
         String rootId = repository.getRootId();
+
         if (rootId == null) {
             return null;
         }
+
         return repository.findById(rootId);
     }
 }
