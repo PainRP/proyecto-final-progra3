@@ -8,4 +8,8 @@ public interface TreeAlgorithmStrategy {
     Node addChild(Node parent, Node childNode);
     Node getRoot();
     List<Node> getChildren(String parentId);
+    List<Node> getPathFromRoot(Node root, String nodeId);
+    List<TreeTraversalNode> getTraversal(Node root, String type);
+    int getHeight(Node root);
+    boolean hasCycle(Node root);
 }

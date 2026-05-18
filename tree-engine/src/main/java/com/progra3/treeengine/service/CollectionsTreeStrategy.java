@@ -33,32 +33,26 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public List<Node> getChildren(String parentId) {
-        if (root == null) {
-            return new ArrayList<>();
-        }
-
-        Node parent = findNodeById(root, parentId);
-
-        if (parent == null) {
-            return new ArrayList<>();
-        }
-
-        return parent.getChildren();
+        return new ArrayList<>();
     }
 
-    private Node findNodeById(Node current, String id) {
-        if (current.getId() != null && current.getId().equals(id)) {
-            return current;
-        }
+    @Override
+    public List<Node> getPathFromRoot(Node root, String nodeId) {
+        return new ArrayList<>();
+    }
 
-        for (Node child : current.getChildren()) {
-            Node found = findNodeById(child, id);
+    @Override
+    public List<TreeTraversalNode> getTraversal(Node root, String type) {
+        return new ArrayList<>();
+    }
 
-            if (found != null) {
-                return found;
-            }
-        }
+    @Override
+    public int getHeight(Node root) {
+        return 0;
+    }
 
-        return null;
+    @Override
+    public boolean hasCycle(Node root) {
+        return false;
     }
 }

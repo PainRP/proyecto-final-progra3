@@ -27,4 +27,24 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
     public List<Node> getChildren(String parentId) {
         return new ArrayList<>();
     }
+
+    @Override
+    public List<Node> getPathFromRoot(Node root, String nodeId) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<TreeTraversalNode> getTraversal(Node root, String type) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public int getHeight(Node root) {
+        return 0;
+    }
+
+    @Override
+    public boolean hasCycle(Node root) {
+        return false;
+    }
 }

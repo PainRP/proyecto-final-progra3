@@ -1,4 +1,4 @@
-package com.progra3.app.repository;
+package com.progra3.app.repository.postgres;
 
 import com.progra3.app.entity.NodeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

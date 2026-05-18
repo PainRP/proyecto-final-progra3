@@ -1,6 +1,7 @@
-package com.progra3.app.repository;
+package com.progra3.app.repository.postgres;
 
 import com.progra3.app.entity.NodeEntity;
+import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;

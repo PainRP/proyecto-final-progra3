@@ -1,4 +1,4 @@
-package com.progra3.app.repository;
+package com.progra3.app.repository.mongo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
 
 @Repository
