@@ -1,4 +1,4 @@
-package com.progra3.app.repository;
+package com.progra3.app.repository.mongo;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

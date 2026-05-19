@@ -3,6 +3,7 @@ package com.progra3.app.service;
 import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
 import com.progra3.treeengine.service.TreeAlgorithmStrategy;
+import com.progra3.treeengine.service.TreeTraversalNode;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,5 +55,41 @@ public class TreeOrchestratorService {
         }
 
         return repository.findById(rootId);
+    }
+
+    public Node getSubtree(String nodeId) {
+        return repository.findById(nodeId);
+    }
+
+    public List<Node> getPathFromRoot(String nodeId) {
+        Node root = getFullTree();
+        if (root == null) {
+            return new ArrayList<>();
+        }
+        return strategy.getPathFromRoot(root, nodeId);
+    }
+
+    public List<TreeTraversalNode> getTraversal(String type) {
+        Node root = getFullTree();
+        if (root == null) {
+            return new ArrayList<>();
+        }
+        return strategy.getTraversal(root, type);
+    }
+
+    public int getHeight() {
+        Node root = getFullTree();
+        if (root == null) {
+            return 0;
+        }
+        return strategy.getHeight(root);
+    }
+
+    public boolean hasCycle() {
+        Node root = getFullTree();
+        if (root == null) {
+            return false;
+        }
+        return strategy.hasCycle(root);
     }
 }

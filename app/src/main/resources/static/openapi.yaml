@@ -98,30 +98,31 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
-		  /tree/{nodeId}:
-		      get:
-		        tags:
-		          - Estructura
-		        summary: Obtener subárbol (Operación 4)
-		        description: Retorna la jerarquía a partir de una cuenta específica como un objeto anidado.
-		        operationId: getSubtree
-		        parameters:
-		          - name: nodeId
-		            in: path
-		            required: true
-		            schema:
-		              type: string
-		        responses:
-		          '200':
-		            description: Subárbol recuperado exitosamente
-		            content:
-		              application/json:
-		                schema:
-		                  $ref: '#/components/schemas/TreeNode' # <--- CAMBIO: Quité el 'type: array'
-		          '404':
-		            description: Cuenta no encontrada
-		          '500':
-		            $ref: '#/components/responses/InternalError'
+  /tree/{nodeId}:
+    get:
+      tags:
+        - Estructura
+      summary: Obtener subárbol (Operación 4)
+      description: Retorna la jerarquía a partir de una cuenta específica como un objeto anidado.
+      operationId: getSubtree
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subárbol recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeNode'
+        '404':
+          description: Cuenta no encontrada
+        '500':
+          $ref: '#/components/responses/InternalError'
+
   /nodes/{nodeId}/path:
     get:
       tags:
@@ -160,7 +161,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [DFS, BFS]
+            enum: [ DFS, BFS ]
       responses:
         '200':
           description: Recorrido completado
@@ -319,7 +320,7 @@ components:
 
     HeightResponse:
       type: object
-      required: [height]
+      required: [ height ]
       properties:
         height:
           type: integer
@@ -327,7 +328,7 @@ components:
 
     DepthResponse:
       type: object
-      required: [depth]
+      required: [ depth ]
       properties:
         depth:
           type: integer
@@ -335,7 +336,7 @@ components:
 
     ValidationResponse:
       type: object
-      required: [valid, message]
+      required: [ valid, message ]
       properties:
         valid:
           type: boolean
@@ -346,7 +347,7 @@ components:
 
     ErrorResponse:
       type: object
-      required: [timestamp, status, error, message, path]
+      required: [ timestamp, status, error, message, path ]
       properties:
         timestamp:
           type: string
