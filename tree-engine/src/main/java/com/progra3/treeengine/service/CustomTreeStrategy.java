@@ -1,8 +1,6 @@
 package com.progra3.treeengine.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.progra3.treeengine.model.Node;
 
@@ -41,11 +39,59 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public int getHeight(Node root) {
-        return 0;
+            if (root == null) {
+                return 0;
+            }
+            int maxHeight = 0;
+            if (root.getChildren() != null) {
+                for (Node child : root.getChildren()) {
+                    int childHeight = getHeight(child);
+                    if (childHeight > maxHeight) {
+                        maxHeight = childHeight;
+                    }
+                }
+            }
+            return 1 + maxHeight;
     }
 
     @Override
     public boolean hasCycle(Node root) {
+
+        if (root == null) {
+            return false;
+        }
+
+        List<Node> visited = new ArrayList<>();
+        List<Node> visiting = new ArrayList<>();
+
+        return detectCycleDFS(root, visited, visiting);
+    }
+
+    private boolean detectCycleDFS(Node current, List<Node> visited, List<Node> visiting) {
+        if (current == null) {
+            return false;
+        }
+        if (visiting.contains(current)) {
+            return true;
+        }
+
+        if (visited.contains(current)) {
+            return false;
+        }
+
+        visiting.add(current);
+
+        if (current.getChildren() != null) {
+            for (Node child : current.getChildren()) {
+                if (detectCycleDFS(child, visited, visiting)) {
+                    return true;
+                }
+            }
+        }
+
+        visiting.remove(current);
+        visited.add(current);
+
         return false;
     }
 
