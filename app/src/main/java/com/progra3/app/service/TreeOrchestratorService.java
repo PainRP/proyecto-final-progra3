@@ -92,4 +92,19 @@ public class TreeOrchestratorService {
         }
         return strategy.hasCycle(root);
     }
+    public int getDepth(String nodeId) {
+        Node root = getFullTree();
+        if (root == null) {
+            return 0;
+        }
+        return strategy.getDepth(root, nodeId);
+    }
+    public List<Node> getAncestors(String nodeId) {
+        Node root = getFullTree();
+        if (root == null) {
+            return new ArrayList<>();
+        }
+        return strategy.getAncestors(root, nodeId);
+    }
+
 }
