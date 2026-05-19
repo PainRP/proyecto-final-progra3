@@ -11,13 +11,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     private Node root;
 
-    /*
-     * Estructura usada:
-     * - ArrayList para manejar la lista de hijos de cada nodo.
-     * - Streams de Java para calcular la altura recorriendo los hijos.
-     * - HashSet para detectar ciclos guardando los nodos visitados.
-     * Esta clase solo contiene lógica pura del motor y no interactúa con repositorios.
-     */
+  
     @Override
     public Node createRoot(Node rootNode) {
         this.root = rootNode;
@@ -73,11 +67,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
     }
 
     private boolean hasCycle(Node current, Set<String> visited) {
-        if (current == null) {
-            return false;
-        }
-
-        if (current.getId() == null) {
+        if (current == null || current.getId() == null) {
             return false;
         }
 
