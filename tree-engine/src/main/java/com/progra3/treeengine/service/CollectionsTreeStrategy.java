@@ -2,8 +2,10 @@ package com.progra3.treeengine.service;
 
 import com.progra3.treeengine.model.Node;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
@@ -12,7 +14,8 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
     /*
      * Estructura usada:
      * - ArrayList para manejar la lista de hijos de cada nodo.
-     * - Búsqueda recursiva sobre el árbol para localizar nodos por id.
+     * - Streams de Java para calcular la altura recorriendo los hijos.
+     * - HashSet para detectar ciclos guardando los nodos visitados.
      * Esta clase solo contiene lógica pura del motor y no interactúa con repositorios.
      */
     @Override
@@ -49,31 +52,66 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public int getHeight(Node root) {
-        return 0;
+        if (root == null) {
+            return 0;
+        }
+
+        if (root.getChildren() == null || root.getChildren().isEmpty()) {
+            return 0;
+        }
+
+        return 1 + root.getChildren()
+                .stream()
+                .mapToInt(this::getHeight)
+                .max()
+                .orElse(0);
     }
 
     @Override
     public boolean hasCycle(Node root) {
+        return hasCycle(root, new HashSet<String>());
+    }
+
+    private boolean hasCycle(Node current, Set<String> visited) {
+        if (current == null) {
+            return false;
+        }
+
+        if (current.getId() == null) {
+            return false;
+        }
+
+        if (visited.contains(current.getId())) {
+            return true;
+        }
+
+        visited.add(current.getId());
+
+        if (current.getChildren() != null) {
+            for (Node child : current.getChildren()) {
+                if (hasCycle(child, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        visited.remove(current.getId());
         return false;
     }
 
-    @Override
     public Node buildFullTree(Map<String, Node> flatNodes) {
         return null;
     }
 
-    @Override
     public Node getSubtree(Node root, String nodeId) {
         return null;
     }
 
-    @Override
     public int getDepth(Node root, String nodeId) {
         return 0;
     }
 
-    @Override
     public List<Node> getAncestors(Node root, String nodeId) {
-        return List.of();
+        return new ArrayList<>();
     }
 }

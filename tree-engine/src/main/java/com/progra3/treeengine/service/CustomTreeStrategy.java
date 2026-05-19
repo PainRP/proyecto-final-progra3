@@ -1,6 +1,10 @@
 package com.progra3.treeengine.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 import com.progra3.treeengine.model.Node;
 
@@ -35,6 +39,7 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
     @Override
     public List<TreeTraversalNode> getTraversal(Node root, String type) {
         List<TreeTraversalNode> result = new ArrayList<>();
+
         if (root == null) {
             return result;
         }
@@ -90,26 +95,29 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
 
         recursiveBFS(queue, result);
     }
+
     @Override
     public int getHeight(Node root) {
-            if (root == null) {
-                return 0;
-            }
-            int maxHeight = 0;
-            if (root.getChildren() != null) {
-                for (Node child : root.getChildren()) {
-                    int childHeight = getHeight(child);
-                    if (childHeight > maxHeight) {
-                        maxHeight = childHeight;
-                    }
+        if (root == null) {
+            return 0;
+        }
+
+        int maxHeight = 0;
+
+        if (root.getChildren() != null) {
+            for (Node child : root.getChildren()) {
+                int childHeight = getHeight(child);
+                if (childHeight > maxHeight) {
+                    maxHeight = childHeight;
                 }
             }
-            return 1 + maxHeight;
+        }
+
+        return 1 + maxHeight;
     }
 
     @Override
     public boolean hasCycle(Node root) {
-
         if (root == null) {
             return false;
         }
@@ -124,6 +132,7 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
         if (current == null) {
             return false;
         }
+
         if (visiting.contains(current)) {
             return true;
         }
@@ -148,23 +157,19 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
         return false;
     }
 
-    @Override
     public Node buildFullTree(Map<String, Node> flatNodes) {
         return null;
     }
 
-    @Override
     public Node getSubtree(Node root, String nodeId) {
         return null;
     }
 
-    @Override
     public int getDepth(Node root, String nodeId) {
         return 0;
     }
 
-    @Override
     public List<Node> getAncestors(Node root, String nodeId) {
-        return List.of();
+        return new ArrayList<>();
     }
 }
