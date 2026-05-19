@@ -37,7 +37,37 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public List<Node> getPathFromRoot(Node root, String nodeId) {
-        return new ArrayList<>();
+        List<Node> path = new ArrayList<>();
+
+        if (root == null || nodeId == null) {
+            return path;
+        }
+
+        findPath(root, nodeId, path);
+        return path;
+    }
+
+    private boolean findPath(Node current, String nodeId, List<Node> path) {
+        if (current == null) {
+            return false;
+        }
+
+        path.add(current);
+
+        if (nodeId.equals(current.getId())) {
+            return true;
+        }
+
+        if (current.getChildren() != null) {
+            for (Node child : current.getChildren()) {
+                if (findPath(child, nodeId, path)) {
+                    return true;
+                }
+            }
+        }
+
+        path.remove(path.size() - 1);
+        return false;
     }
 
     @Override
@@ -143,10 +173,27 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
     }
 
     public int getDepth(Node root, String nodeId) {
-        return 0;
+        List<Node> path = getPathFromRoot(root, nodeId);
+
+        if (path.isEmpty()) {
+            return 0;
+        }
+
+        return path.size() - 1;
     }
 
     public List<Node> getAncestors(Node root, String nodeId) {
-        return new ArrayList<>();
+        List<Node> path = getPathFromRoot(root, nodeId);
+        List<Node> ancestors = new ArrayList<>();
+
+        if (path.size() <= 1) {
+            return ancestors;
+        }
+
+        for (int i = 0; i < path.size() - 1; i++) {
+            ancestors.add(path.get(i));
+        }
+
+        return ancestors;
     }
 }
