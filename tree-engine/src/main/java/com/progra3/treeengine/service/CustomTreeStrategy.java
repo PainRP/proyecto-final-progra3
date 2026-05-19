@@ -34,9 +34,62 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public List<TreeTraversalNode> getTraversal(Node root, String type) {
-        return new ArrayList<>();
+        List<TreeTraversalNode> result = new ArrayList<>();
+        if (root == null) {
+            return result;
+        }
+
+        if ("DFS".equalsIgnoreCase(type)) {
+            runDFSCustom(root, null, result);
+        } else if ("BFS".equalsIgnoreCase(type)) {
+            runBFSCustom(root, result);
+        }
+
+        return result;
     }
 
+    private void runDFSCustom(Node current, String parentId, List<TreeTraversalNode> result) {
+        if (current == null) {
+            return;
+        }
+
+        result.add(new TreeTraversalNode(current, parentId));
+
+        if (current.getChildren() != null) {
+            for (Node child : current.getChildren()) {
+                runDFSCustom(child, current.getId(), result);
+            }
+        }
+    }
+
+    private void runBFSCustom(Node root, List<TreeTraversalNode> result) {
+        if (root == null) {
+            return;
+        }
+
+        Queue<TreeTraversalNode> queue = new LinkedList<>();
+        queue.add(new TreeTraversalNode(root, null));
+
+        recursiveBFS(queue, result);
+    }
+
+    private void recursiveBFS(Queue<TreeTraversalNode> queue, List<TreeTraversalNode> result) {
+        if (queue.isEmpty()) {
+            return;
+        }
+
+        TreeTraversalNode currentTraversal = queue.poll();
+        Node currentNode = currentTraversal.getNode();
+        result.add(currentTraversal);
+
+        if (currentNode.getChildren() != null) {
+            for (Node child : currentNode.getChildren()) {
+                queue.add(new TreeTraversalNode(child, currentNode.getId()));
+            }
+        }
+
+        recursiveBFS(queue, result);
+    }
     @Override
     public int getHeight(Node root) {
             if (root == null) {
