@@ -57,7 +57,24 @@ public class MongoTreeRepository implements TreeRepository {
 
     @Override
     public Node findById(String id) {
-        return findAll().get(id);
+        return mongoNodeRepository.findById(id)
+                .map(document -> {
+                    Node node = document.toNode();
+                    node.setChildren(new ArrayList<>());
+
+                    for (NodeDocument childDocument : mongoNodeRepository.findAll()) {
+                        if (id.equals(childDocument.getParentId())) {
+                            Node child = findById(childDocument.getId());
+
+                            if (child != null) {
+                                node.getChildren().add(child);
+                            }
+                        }
+                    }
+
+                    return node;
+                })
+                .orElse(null);
     }
 
     @Override
