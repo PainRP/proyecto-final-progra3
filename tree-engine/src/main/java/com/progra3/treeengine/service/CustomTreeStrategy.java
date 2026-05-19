@@ -2,6 +2,7 @@ package com.progra3.treeengine.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.progra3.treeengine.model.Node;
 
@@ -46,5 +47,25 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
     @Override
     public boolean hasCycle(Node root) {
         return false;
+    }
+
+    @Override
+    public Node buildFullTree(Map<String, Node> flatNodes) {
+        return null;
+    }
+
+    @Override
+    public Node getSubtree(Node root, String nodeId) {
+        return null;
+    }
+
+    @Override
+    public int getDepth(Node root, String nodeId) {
+        return 0;
+    }
+
+    @Override
+    public List<Node> getAncestors(Node root, String nodeId) {
+        return List.of();
     }
 }
