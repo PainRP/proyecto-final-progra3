@@ -1,17 +1,18 @@
 package com.progra3.treeengine.service;
 
 import com.progra3.treeengine.model.Node;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     private Node root;
 
-  
     @Override
     public Node createRoot(Node rootNode) {
         this.root = rootNode;
@@ -41,7 +42,51 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public List<TreeTraversalNode> getTraversal(Node root, String type) {
-        return new ArrayList<>();
+        List<TreeTraversalNode> result = new ArrayList<>();
+
+        if (root == null || type == null) {
+            return result;
+        }
+
+        if ("DFS".equalsIgnoreCase(type)) {
+            runDFS(root, null, result);
+        } else if ("BFS".equalsIgnoreCase(type)) {
+            runBFS(root, result);
+        }
+
+        return result;
+    }
+
+    private void runDFS(Node current, String parentId, List<TreeTraversalNode> result) {
+        if (current == null) {
+            return;
+        }
+
+        result.add(new TreeTraversalNode(current, parentId));
+
+        if (current.getChildren() != null) {
+            for (Node child : current.getChildren()) {
+                runDFS(child, current.getId(), result);
+            }
+        }
+    }
+
+    private void runBFS(Node root, List<TreeTraversalNode> result) {
+        Queue<TreeTraversalNode> queue = new ArrayDeque<>();
+        queue.add(new TreeTraversalNode(root, null));
+
+        while (!queue.isEmpty()) {
+            TreeTraversalNode currentTraversal = queue.poll();
+            Node currentNode = currentTraversal.getNode();
+
+            result.add(currentTraversal);
+
+            if (currentNode.getChildren() != null) {
+                for (Node child : currentNode.getChildren()) {
+                    queue.add(new TreeTraversalNode(child, currentNode.getId()));
+                }
+            }
+        }
     }
 
     @Override
