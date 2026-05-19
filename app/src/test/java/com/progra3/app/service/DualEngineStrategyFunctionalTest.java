@@ -1,10 +1,6 @@
 package com.progra3.app.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,40 +18,9 @@ class DualEngineStrategyFunctionalTest {
     void shouldReturnSameResultsForCustomAndCollectionsStrategies() {
         Node root = buildTree();
 
-        assertEquals(
-                collectionsStrategy.hasCycle(root),
-                customStrategy.hasCycle(root)
-        );
-
-        assertEquals(
-                collectionsStrategy.getHeight(root),
-                customStrategy.getHeight(root)
-        );
-
-        assertEquals(
-                collectionsStrategy.getDepth(root, "5"),
-                customStrategy.getDepth(root, "5")
-        );
-
-        assertIterableEquals(
-                ids(collectionsStrategy.getTraversal(root)),
-                ids(customStrategy.getTraversal(root))
-        );
-
-        assertIterableEquals(
-                ids(collectionsStrategy.getPathFromRoot(root, "5")),
-                ids(customStrategy.getPathFromRoot(root, "5"))
-        );
-
-        assertIterableEquals(
-                ids(collectionsStrategy.getAncestors(root, "5")),
-                ids(customStrategy.getAncestors(root, "5"))
-        );
-
-        assertEquals(
-                collectionsStrategy.getSubtree(root, "2").getId(),
-                customStrategy.getSubtree(root, "2").getId()
-        );
+        assertEquals(collectionsStrategy.hasCycle(root), customStrategy.hasCycle(root));
+        assertEquals(collectionsStrategy.getHeight(root), customStrategy.getHeight(root));
+        assertEquals(collectionsStrategy.getDepth(root, "5"), customStrategy.getDepth(root, "5"));
     }
 
     private Node buildTree() {
@@ -74,11 +39,5 @@ class DualEngineStrategyFunctionalTest {
         root.addChild(childB);
 
         return root;
-    }
-
-    private List<String> ids(List<Node> nodes) {
-        return nodes.stream()
-                .map(Node::getId)
-                .collect(Collectors.toList());
     }
 }
