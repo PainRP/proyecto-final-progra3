@@ -2,13 +2,13 @@ package com.progra3.app.repository.memory;
 
 import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-@Profile("memory")
+@ConditionalOnProperty(name = "app.storage", havingValue = "memory", matchIfMissing = true)
 public class InMemoryTreeRepository implements TreeRepository {
 
     private final Map<String, Node> storage = new ConcurrentHashMap<>();
