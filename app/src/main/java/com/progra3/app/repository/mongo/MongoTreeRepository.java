@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
 
 @Repository
-@Profile("mongo")
+@ConditionalOnProperty(name = "app.storage", havingValue = "mongo")
 public class MongoTreeRepository implements TreeRepository {
 
     private static final String ROOT_CONFIG_ID = "ROOT";

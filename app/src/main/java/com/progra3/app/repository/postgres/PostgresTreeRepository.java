@@ -3,7 +3,7 @@ package com.progra3.app.repository.postgres;
 import com.progra3.app.entity.NodeEntity;
 import com.progra3.app.repository.TreeRepository;
 import com.progra3.treeengine.model.Node;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-@Profile("postgres")
+@ConditionalOnProperty(name = "app.storage", havingValue = "postgres")
 @Transactional
 public class PostgresTreeRepository implements TreeRepository {
 
