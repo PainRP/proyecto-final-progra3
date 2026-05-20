@@ -125,13 +125,17 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
             if (root == null) {
                 return 0;
             }
+
+
+            if (root.getChildren() == null || root.getChildren().isEmpty()) {
+                return 0;
+            }
+
             int maxHeight = 0;
-            if (root.getChildren() != null) {
-                for (Node child : root.getChildren()) {
-                    int childHeight = getHeight(child);
-                    if (childHeight > maxHeight) {
-                        maxHeight = childHeight;
-                    }
+            for (Node child : root.getChildren()) {
+                int childHeight = getHeight(child);
+                if (childHeight > maxHeight) {
+                maxHeight = childHeight;
                 }
             }
             return 1 + maxHeight;
