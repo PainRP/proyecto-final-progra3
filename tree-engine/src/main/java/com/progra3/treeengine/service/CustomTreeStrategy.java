@@ -37,7 +37,7 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
         if (findPathDFS(root, nodeId, path)) {
             return path;
         }
-        return new ArrayList<>(); // Retorna lista vacía si no se encuentra el nodo
+        return new ArrayList<>();
     }
     private boolean findPathDFS(Node current, String targetId, List<Node> path) {
         if (current == null) {
@@ -182,15 +182,32 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
             return false;
         }
 
-        @Override
-        public Node buildFullTree(Map<String, Node> flatNodes) {
+    @Override
+    public Node buildFullTree(Map<String, Node> flatNodes) {
+        if (flatNodes == null || flatNodes.isEmpty()) {
             return null;
         }
+        return flatNodes.values().iterator().next();
+    }
 
-        @Override
-        public Node getSubtree(Node root, String nodeId) {
+    @Override
+    public Node getSubtree(Node root, String nodeId) {
+        if (root == null) {
             return null;
         }
+        if (root.getId() != null && root.getId().equals(nodeId)) {
+            return root;
+        }
+        if (root.getChildren() != null) {
+            for (Node child : root.getChildren()) {
+                Node found = getSubtree(child, nodeId);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    }
 
     @Override
     public int getDepth(Node root, String nodeId) {
