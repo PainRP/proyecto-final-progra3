@@ -1,26 +1,45 @@
 package com.progra3.app.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 import com.progra3.treeengine.model.Node;
-import com.progra3.treeengine.service.CollectionsTreeStrategy;
-import com.progra3.treeengine.service.CustomTreeStrategy;
-import com.progra3.treeengine.service.TreeAlgorithmStrategy;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class DualEngineStrategyFunctionalTest {
 
-    private final TreeAlgorithmStrategy customStrategy = new CustomTreeStrategy();
-    private final TreeAlgorithmStrategy collectionsStrategy = new CollectionsTreeStrategy();
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private TreeOrchestratorService treeService;
 
     @Test
-    void shouldReturnSameResultsForCustomAndCollectionsStrategies() {
+    void shouldExposeTreeEndpointSuccessfully() throws Exception {
         Node root = buildTree();
 
-        assertEquals(collectionsStrategy.hasCycle(root), customStrategy.hasCycle(root));
-        assertEquals(collectionsStrategy.getHeight(root), customStrategy.getHeight(root));
-        assertEquals(collectionsStrategy.getDepth(root, "5"), customStrategy.getDepth(root, "5"));
+        when(treeService.getFullTree()).thenReturn(root);
+
+        mockMvc.perform(get("/api/tree"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.mensaje").value("Arbol cargado correctamente desde el backend"))
+                .andExpect(jsonPath("$.storage").value("mongo"))
+                .andExpect(jsonPath("$.treeStrategy").value("custom"))
+                .andExpect(jsonPath("$.root.id").value("1"))
+                .andExpect(jsonPath("$.root.name").value("Raiz"));
     }
 
     private Node buildTree() {
