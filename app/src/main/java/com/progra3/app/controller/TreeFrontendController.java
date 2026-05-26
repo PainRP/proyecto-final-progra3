@@ -4,12 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.progra3.app.service.TreeOrchestratorService;
 import com.progra3.treeengine.model.Node;
 
-@RestController
+@Deprecated
 public class TreeFrontendController {
 
     private final TreeOrchestratorService treeService;

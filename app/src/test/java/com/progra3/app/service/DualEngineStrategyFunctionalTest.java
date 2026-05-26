@@ -37,11 +37,11 @@ class DualEngineStrategyFunctionalTest {
         mockMvc.perform(get("/api/tree"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.mensaje").value("Arbol cargado correctamente desde el backend"))
-                .andExpect(jsonPath("$.storage").value("mongo"))
-                .andExpect(jsonPath("$.treeStrategy").value("custom"))
-                .andExpect(jsonPath("$.root.id").value("1"))
-                .andExpect(jsonPath("$.root.name").value("Raiz"));
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.code").value("ROOT"))
+                .andExpect(jsonPath("$.name").value("Raiz"))
+                .andExpect(jsonPath("$.children[0].id").value("2"))
+                .andExpect(jsonPath("$.children[1].id").value("3"));
     }
 
     private Node buildTree() {

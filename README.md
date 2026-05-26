@@ -14,20 +14,73 @@ Para ejecutar este proyecto de manera local, se requiere lo siguiente:
 * **Gestor de dependencias:** Maven.
 * **Bases de datos:** Instancias activas de PostgreSQL y MongoDB (se recomienda usar Docker mediante el archivo `docker-compose.yml` provisto en el proyecto).
 
-**Ejecución con cambio dinámico de configuraciones:**
-El sistema permite alternar entre estrategias de motor y bases de datos **sin recompilar**, utilizando parámetros al momento de ejecutar.
+### Ejecución con cambio dinámico de configuraciones
 
-Ejemplo para correr con la estrategia *Custom* y persistencia en *Memoria*:
+Para levantar el proyecto completo y alternar entre las distintas combinaciones de motores y persistencias, sigue estos pasos:
+
+#### 1. Levantar la infraestructura base (Solo la primera vez)
+Antes de iniciar el backend, es necesario levantar los contenedores de Docker que alojan las bases de datos (**PostgreSQL** y **MongoDB**). Ejecuta el siguiente comando en la raíz del proyecto:
+
 ```bash
-./mvnw spring-boot:run -pl app -Dspring-boot.run.arguments="--app.tree-strategy=custom --app.storage=memory"
+docker compose up -d
 ```
+*> **Nota:** Si usas una versión antigua de Docker, el comando puede ser `docker-compose up -d`.*
 
-Ejemplo para correr con la estrategia *Collections* y persistencia en *Postgres*:
-```bash
-./mvnw spring-boot:run -pl app -Dspring-boot.run.arguments="--app.tree-strategy=collections --app.storage=postgres"
+> **Solución a errores de internet/red:** Si Docker lanza un error al descargar las imágenes por problemas de conexión, se debe cambiar la configuración de Docker para asignarle un DNS público (como el de Google). Esto se hace agregando `"dns": ["8.8.8.8", "8.8.4.4"]` en el archivo de configuración del Daemon (`daemon.json`) o desde el menú de configuración de Docker Desktop (Settings > Docker Engine).
+
+---
+
+#### 2. Configurar el motor y almacenamiento
+La flexibilidad del sistema permite cambiar la estrategia del árbol y el tipo de persistencia editando el archivo `application.properties` del backend sin necesidad de recompilar el código.
+
+Abre `src/main/resources/application.properties` y ajusta las siguientes propiedades según la combinación que desees probar:
+
+```properties
+# ===================================================================
+# CONFIGURACIÓN DINÁMICA DEL MOTOR Y PERSISTENCIA
+# ===================================================================
+
+# Estrategias de algoritmo disponibles:
+# - custom      (Estructura propia, sin librerías externas)
+# - collections (Estructura basada en el JDK Collections API)
+app.tree-strategy=custom
+
+# Almacenamientos disponibles:
+# - memory      (Estructura volátil en la JVM)
+# - postgres    (Base de datos relacional)
+# - mongo       (Base de datos documental)
+app.storage=memory
+
+# Perfil activo de Spring (debe coincidir con el almacenamiento elegido)
+spring.profiles.active=memory
 ```
 
 ---
+
+#### 3. Ejecutar el Backend (Spring Boot con Maven)
+Una vez guardada la configuración, inicia el servidor de desarrollo de Spring Boot desde la terminal de tu IDE o usando el Wrapper de Maven en la raíz del backend:
+
+```bash
+./mvnw spring-boot:run
+```
+
+---
+
+#### 4. Ejecutar el Frontend
+Para levantar la interfaz gráfica y visualizar el comportamiento del árbol, abre una nueva terminal y dirígete a la carpeta del frontend:
+
+* **Instalación de dependencias** (solo es necesario hacerlo la primera vez o si cambian los paquetes):
+    ```bash
+    cd frontend
+    npm install
+    ```
+* **Iniciar el entorno de desarrollo:**
+    ```bash
+    npm run dev
+    ```
+
+Una vez encendido, abre el navegador en la ruta local que te indique la consola (usualmente `http://localhost:5173`) para interactuar con el sistema de gestión jerárquica.
+```
 
 ## ⚖️ Validación de Equivalencia de Motores
 Para asegurar que tanto la estrategia `custom` como `collections` procesen la jerarquía del árbol de forma idéntica, se ha implementado un conjunto de pruebas funcionales automatizadas (`DualEngineStrategyFunctionalTest.java`).
