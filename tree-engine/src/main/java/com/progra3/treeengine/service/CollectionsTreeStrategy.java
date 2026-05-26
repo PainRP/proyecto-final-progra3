@@ -32,7 +32,13 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public List<Node> getChildren(String parentId) {
-        return new ArrayList<>();
+        Node parent = getSubtree(this.root, parentId);
+
+        if (parent == null || parent.getChildren() == null) {
+            return new ArrayList<>();
+        }
+
+        return parent.getChildren();
     }
 
     @Override
@@ -164,14 +170,75 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
         return false;
     }
 
+    @Override
     public Node buildFullTree(Map<String, Node> flatNodes) {
-        return null;
+        if (flatNodes == null || flatNodes.isEmpty()) {
+            return null;
+        }
+
+        Node rootNode = null;
+
+        for (Node node : flatNodes.values()) {
+            if (node.getChildren() == null) {
+                node.setChildren(new ArrayList<>());
+            } else {
+                node.getChildren().clear();
+            }
+        }
+
+        for (Node node : flatNodes.values()) {
+            String code = node.getCode();
+
+            if (code == null || !code.contains(".")) {
+                rootNode = node;
+            } else {
+                String parentCode = code.substring(0, code.lastIndexOf("."));
+                Node parent = findNodeByCode(flatNodes, parentCode);
+
+                if (parent != null) {
+                    parent.addChild(node);
+                }
+            }
+        }
+
+        this.root = rootNode;
+        return rootNode;
     }
 
+    @Override
     public Node getSubtree(Node root, String nodeId) {
+        if (root == null || nodeId == null) {
+            return null;
+        }
+
+        if (nodeId.equals(root.getId())) {
+            return root;
+        }
+
+        if (root.getChildren() != null) {
+            for (Node child : root.getChildren()) {
+                Node found = getSubtree(child, nodeId);
+
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+
         return null;
     }
 
+    private Node findNodeByCode(Map<String, Node> flatNodes, String code) {
+        for (Node node : flatNodes.values()) {
+            if (code.equals(node.getCode())) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public int getDepth(Node root, String nodeId) {
         List<Node> path = getPathFromRoot(root, nodeId);
 
@@ -182,6 +249,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
         return path.size() - 1;
     }
 
+    @Override
     public List<Node> getAncestors(Node root, String nodeId) {
         List<Node> path = getPathFromRoot(root, nodeId);
         List<Node> ancestors = new ArrayList<>();
