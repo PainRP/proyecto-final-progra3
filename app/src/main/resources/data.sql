@@ -15,3 +15,5 @@ INSERT INTO nodes (id, code, name, type, description, parent_id) VALUES
 (12, '3.1', 'Capital', 'GRUPO', 'Aportes de los propietarios', 11),
 (13, '3.1.1', 'Capital Social', 'CUENTA', 'Capital aportado por los socios', 12)
 ON CONFLICT (id) DO NOTHING;
+
+ALTER SEQUENCE nodes_id_seq RESTART WITH 14;
