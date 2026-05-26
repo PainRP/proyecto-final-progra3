@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,14 +31,14 @@ public class TreeController implements NodesApi, TreeApi {
     }
 
     @Override
-    public ResponseEntity<Node> createRoot(NodeRequest nodeRequest) {
+    public ResponseEntity<Node> createRoot(@Valid NodeRequest nodeRequest) {
         com.progra3.treeengine.model.Node rootNode = mapToModel(nodeRequest);
         com.progra3.treeengine.model.Node created = service.createRoot(rootNode);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToDto(created, null));
     }
 
     @Override
-    public ResponseEntity<Node> addChild(String parentId, NodeRequest nodeRequest) {
+    public ResponseEntity<Node> addChild(String parentId, @Valid NodeRequest nodeRequest) {
         com.progra3.treeengine.model.Node childNode = mapToModel(nodeRequest);
         com.progra3.treeengine.model.Node created = service.addChild(parentId, childNode);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToDto(created, parentId));
@@ -46,7 +48,7 @@ public class TreeController implements NodesApi, TreeApi {
     public ResponseEntity<TreeNode> getFullTree() {
         com.progra3.treeengine.model.Node root = service.getFullTree();
         if (root == null) {
-            return ResponseEntity.notFound().build();
+            throw new IllegalArgumentException("Plan de cuentas no encontrado");
         }
         return ResponseEntity.ok(mapToTreeDto(root, null));
     }
@@ -55,7 +57,7 @@ public class TreeController implements NodesApi, TreeApi {
     public ResponseEntity<TreeNode> getSubtree(String nodeId) {
         com.progra3.treeengine.model.Node node = service.getSubtree(nodeId);
         if (node == null) {
-            return ResponseEntity.notFound().build();
+            throw new IllegalArgumentException("Cuenta no encontrada");
         }
         return ResponseEntity.ok(mapToTreeDto(node, null));
     }
@@ -64,7 +66,7 @@ public class TreeController implements NodesApi, TreeApi {
     public ResponseEntity<List<Node>> getPath(String nodeId) {
         List<com.progra3.treeengine.model.Node> path = service.getPathFromRoot(nodeId);
         if (path.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new IllegalArgumentException("Cuenta no encontrada");
         }
 
         return ResponseEntity.ok(mapPathToDto(path));
