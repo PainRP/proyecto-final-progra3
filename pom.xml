@@ -10,6 +10,7 @@
     <packaging>pom</packaging> <modules>
         <module>tree-engine</module>
         <module>app</module>
+        <module>frontend</module>
     </modules>
 
     <properties>
