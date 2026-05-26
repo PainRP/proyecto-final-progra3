@@ -63,8 +63,6 @@ public class PostgresTreeRepository implements TreeRepository {
 
     @Override
     public void setRootId(String rootId) {
-        // En PostgreSQL la raiz se identifica consultando el nodo sin parent_id.
-        // No se guarda rootId en memoria porque la base de datos es la fuente de verdad.
     }
 
     @Override
@@ -82,14 +80,16 @@ public class PostgresTreeRepository implements TreeRepository {
     @Override
     @Transactional(readOnly = true)
     public Map<String, Node> findAll() {
-        Map<String, Node> nodes = new HashMap<>();
+        Map<String, Node> flatNodes = new HashMap<>();
 
-        for (NodeEntity entity : jpaNodeRepository.findAll()) {
-            Node node = toNode(entity);
-            nodes.put(node.getId(), node);
+        List<NodeEntity> entities = jpaNodeRepository.findAll();
+
+        for (NodeEntity entity : entities) {
+            Node node = toFlatNode(entity);
+            flatNodes.put(node.getId(), node);
         }
 
-        return nodes;
+        return flatNodes;
     }
 
     private NodeEntity toEntity(Node node) {
@@ -110,13 +110,7 @@ public class PostgresTreeRepository implements TreeRepository {
     }
 
     private Node toNode(NodeEntity entity) {
-        Node node = new Node(
-                String.valueOf(entity.getId()),
-                entity.getCode(),
-                entity.getName(),
-                entity.getType(),
-                entity.getDescription()
-        );
+        Node node = toFlatNode(entity);
 
         if (entity.getChildren() != null) {
             for (NodeEntity child : entity.getChildren()) {
@@ -125,6 +119,16 @@ public class PostgresTreeRepository implements TreeRepository {
         }
 
         return node;
+    }
+
+    private Node toFlatNode(NodeEntity entity) {
+        return new Node(
+                String.valueOf(entity.getId()),
+                entity.getCode(),
+                entity.getName(),
+                entity.getType(),
+                entity.getDescription()
+        );
     }
 
     private Long parseId(String id) {

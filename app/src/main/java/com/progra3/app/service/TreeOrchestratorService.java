@@ -7,6 +7,7 @@ import com.progra3.treeengine.service.TreeTraversalNode;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TreeOrchestratorService {
@@ -48,63 +49,82 @@ public class TreeOrchestratorService {
     }
 
     public Node getFullTree() {
-        String rootId = repository.getRootId();
+        Map<String, Node> flatNodes = repository.findAll();
 
-        if (rootId == null) {
+        if (flatNodes.isEmpty()) {
             return null;
         }
 
-        return repository.findById(rootId);
+        return strategy.buildFullTree(flatNodes);
     }
 
     public Node getSubtree(String nodeId) {
-        return repository.findById(nodeId);
+        Node root = getFullTree();
+
+        if (root == null) {
+            return null;
+        }
+
+        return strategy.getSubtree(root, nodeId);
     }
 
     public List<Node> getPathFromRoot(String nodeId) {
         Node root = getFullTree();
+
         if (root == null) {
             return new ArrayList<>();
         }
+
         return strategy.getPathFromRoot(root, nodeId);
     }
 
     public List<TreeTraversalNode> getTraversal(String type) {
         Node root = getFullTree();
+
         if (root == null) {
             return new ArrayList<>();
         }
+
         return strategy.getTraversal(root, type);
     }
 
     public int getHeight() {
         Node root = getFullTree();
+
         if (root == null) {
             return 0;
         }
+
         return strategy.getHeight(root);
     }
 
     public boolean hasCycle() {
         Node root = getFullTree();
+
         if (root == null) {
             return false;
         }
+
         return strategy.hasCycle(root);
     }
+
     public int getDepth(String nodeId) {
         Node root = getFullTree();
+
         if (root == null) {
             return 0;
         }
+
         return strategy.getDepth(root, nodeId);
     }
+
     public List<Node> getAncestors(String nodeId) {
         Node root = getFullTree();
+
         if (root == null) {
             return new ArrayList<>();
         }
+
         return strategy.getAncestors(root, nodeId);
     }
-
 }
