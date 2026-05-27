@@ -80,7 +80,7 @@ Para levantar la interfaz gráfica y visualizar el comportamiento del árbol, ab
     ```
 
 Una vez encendido, abre el navegador en la ruta local que te indique la consola (usualmente `http://localhost:5173`) para interactuar con el sistema de gestión jerárquica.
-```
+
 
 ## ⚖️ Validación de Equivalencia de Motores
 Para asegurar que tanto la estrategia `custom` como `collections` procesen la jerarquía del árbol de forma idéntica, se ha implementado un conjunto de pruebas funcionales automatizadas (`DualEngineStrategyFunctionalTest.java`).
@@ -148,9 +148,9 @@ Para representar fielmente este dominio, el modelo genérico de datos utiliza at
 ### Resumen de Responsabilidades Asignadas
 * **Persistencia:** Base de Datos NoSQL orientada a documentos (MongoDB).
 * **Motor de Algoritmos:** Integración en Spring Boot de ambas estrategias mediante inyección condicional de dependencias.
-* **Transversal:** Selectores de propiedades (`app.tree-strategy` y `app.storage`) y **desarrollo del frontend visual (en colaboración con Persona A)**.
+* **Transversal:** Selectores de propiedades (`app.tree-strategy` y `app.storage`), **pruebas de integración** y **desarrollo del frontend visual (en colaboración con Persona A)**.
 
 ### Artefactos y Trabajo Realizado
 * **Arquitectura Transversal e Inyección de Dependencias:** Desarrollo de `TreeStrategyConfig.java` para habilitar el uso de beans condicionales (`@ConditionalOnProperty`). Permite al orquestador `TreeOrchestratorService.java` inyectar dinámicamente la estrategia del motor (`custom` o `collections`) y la persistencia activa según los properties de configuración sin recompilar el proyecto.
-* **Persistencia (MongoDB):** Creación de la capa de almacenamiento documental NoSQL con `NodeDocument.java` y `RootDocument.java`. Implementación de la persistencia de lectura y escritura jerárquica a través de `MongoTreeRepository.java`.
+* **Persistencia (MongoDB) y Pruebas de Integración:** Creación de la capa de almacenamiento documental NoSQL con `NodeDocument.java` y `RootDocument.java`. Implementación de la persistencia de lectura y escritura jerárquica a través de `MongoTreeRepository.java`. Adicionalmente, se desarrollaron pruebas de integración (ej. `MongoTreeRepositoryTest` en la rama `feature/C9-mongo-integration-tests`) para validar la correcta conexión y operaciones CRUD entre Spring Boot y MongoDB.
 * **Implementación Visual (Frontend - Trabajo Conjunto con Persona A):** Diseño estético de la interfaz de usuario en `index.html` e integración de scripts para el manejo de formularios, estilos CSS interactivos del árbol contable, validación de formularios y la habilitación de controles gráficos en la UI que demuestran el intercambio en caliente de las propiedades `app.tree-strategy` y `app.storage`.
