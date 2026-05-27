@@ -1,15 +1,13 @@
 package com.progra3.app.repository.mongo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.progra3.app.repository.TreeRepository;
+import com.progra3.treeengine.model.Node;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import com.progra3.app.repository.TreeRepository;
-import com.progra3.treeengine.model.Node;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 @ConditionalOnProperty(name = "app.storage", havingValue = "mongo")
@@ -96,32 +94,11 @@ public class MongoTreeRepository implements TreeRepository {
     @Override
     public Map<String, Node> findAll() {
         Map<String, Node> nodes = new HashMap<>();
-        Map<String, String> parentByNode = new HashMap<>();
 
         for (NodeDocument document : mongoNodeRepository.findAll()) {
             Node node = document.toNode();
             node.setChildren(new ArrayList<>());
-
             nodes.put(node.getId(), node);
-            parentByNode.put(node.getId(), document.getParentId());
-        }
-
-        for (Map.Entry<String, String> entry : parentByNode.entrySet()) {
-            String nodeId = entry.getKey();
-            String parentId = entry.getValue();
-
-            if (parentId != null && nodes.containsKey(parentId)) {
-                Node parent = nodes.get(parentId);
-                Node child = nodes.get(nodeId);
-
-                List<Node> children = parent.getChildren();
-                if (children == null) {
-                    children = new ArrayList<>();
-                    parent.setChildren(children);
-                }
-
-                children.add(child);
-            }
         }
 
         return nodes;
