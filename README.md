@@ -49,13 +49,15 @@ También participé en la revisión del proyecto, ejecución de comandos, correc
 
 Durante el desarrollo se utilizaron comandos como:
 
+```markdown
 ```bash
 git status
 git add .
 git commit -m "mensaje del commit"
 git push -u origin nombre-de-la-rama
+
 Conclusión
 
 El trabajo realizado permitió avanzar en la construcción del proyecto de forma ordenada, utilizando control de versiones con Git y GitHub, pruebas de integración y documentación de los cambios. La integración con MongoDB fue una parte importante porque permitió validar el funcionamiento del repositorio encargado de manejar datos dentro del sistema.
 
-## Trabajo realizado durante el proyecto
+## Trabajo realizado durante el proyecto.
