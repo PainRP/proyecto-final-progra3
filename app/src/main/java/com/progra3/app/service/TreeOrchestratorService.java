@@ -39,14 +39,23 @@ public class TreeOrchestratorService {
     }
 
     public List<Node> getChildren(String parentId) {
-        Node parent = repository.findById(parentId);
+        Map<String, Node> flatNodes = repository.findAll();
 
-        if (parent != null) {
-            return parent.getChildren();
+        if (flatNodes.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        return new ArrayList<>();
+        // El arbol se construye en la estrategia, no en el repositorio.
+        Node root = strategy.buildFullTree(flatNodes);
+        Node parent = strategy.getSubtree(root, parentId);
+
+        if (parent == null || parent.getChildren() == null) {
+            return new ArrayList<>();
+        }
+
+        return parent.getChildren();
     }
+
 
     public Node getFullTree() {
         Map<String, Node> flatNodes = repository.findAll();

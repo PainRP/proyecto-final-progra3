@@ -5,12 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = "app.storage=mongo")
+@ActiveProfiles("mongo")
 class MongoTreeRepositoryTest {
 
     @Autowired
@@ -54,7 +56,7 @@ class MongoTreeRepositoryTest {
     }
 
     @Test
-    void shouldRecoverHydratedTreeUsingFindById() {
+    void shouldRecoverFlatNodeUsingFindById() {
         Node root = buildTree();
 
         mongoTreeRepository.save(root);
@@ -65,13 +67,7 @@ class MongoTreeRepositoryTest {
         assertEquals("1", recovered.getId());
         assertEquals("Raiz", recovered.getName());
         assertNotNull(recovered.getChildren());
-        assertEquals(2, recovered.getChildren().size());
-
-        Node childA = recovered.getChildren().get(0);
-        assertEquals("2", childA.getId());
-        assertEquals("Hijo A", childA.getName());
-        assertEquals(1, childA.getChildren().size());
-        assertEquals("4", childA.getChildren().get(0).getId());
+        assertEquals(0, recovered.getChildren().size());
     }
 
     @Test

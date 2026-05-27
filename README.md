@@ -80,7 +80,7 @@ Para levantar la interfaz gráfica y visualizar el comportamiento del árbol, ab
     ```
 
 Una vez encendido, abre el navegador en la ruta local que te indique la consola (usualmente `http://localhost:5173`) para interactuar con el sistema de gestión jerárquica.
-```
+```![img.png](img.png)
 
 ## ⚖️ Validación de Equivalencia de Motores
 Para asegurar que tanto la estrategia `custom` como `collections` procesen la jerarquía del árbol de forma idéntica, se ha implementado un conjunto de pruebas funcionales automatizadas (`DualEngineStrategyFunctionalTest.java`).

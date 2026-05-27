@@ -1,48 +1,25 @@
 package com.progra3.treeengine.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 import com.progra3.treeengine.model.Node;
 
 public class CustomTreeStrategy implements TreeAlgorithmStrategy {
-
-        private Node root;
-
         @Override
         public Node createRoot(Node rootNode) {
-            this.root = rootNode;
+            // Estrategia stateless: no se guarda estado interno.
             return rootNode;
         }
 
         @Override
         public Node addChild(Node parent, Node childNode) {
+            childNode.setParentId(parent.getId());
             parent.addChild(childNode);
             return childNode;
-        }
-
-        @Override
-        public Node getRoot() {
-            return this.root;
-        }
-
-        @Override
-        public List<Node> getChildren(String parentId) {
-            if (parentId == null || this.root == null) {
-                return new ArrayList<>();
-            }
-
-            Node parent = getSubtree(this.root, parentId);
-            if (parent == null || parent.getChildren() == null) {
-                return new ArrayList<>();
-            }
-
-            return new ArrayList<>(parent.getChildren());
         }
 
     @Override
@@ -199,49 +176,32 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
     @Override
     public Node buildFullTree(Map<String, Node> flatNodes) {
         if (flatNodes == null || flatNodes.isEmpty()) {
-            this.root = null;
             return null;
         }
 
-        Set<String> childIds = new HashSet<>();
+        // Reset de hijos para reconstruir el arbol desde nodos planos.
         for (Node node : flatNodes.values()) {
             if (node.getChildren() == null) {
-                continue;
-            }
-            for (Node child : node.getChildren()) {
-                if (child != null && child.getId() != null) {
-                    childIds.add(child.getId());
-                }
+                node.setChildren(new ArrayList<>());
+            } else {
+                node.getChildren().clear();
             }
         }
 
-        List<Node> roots = new ArrayList<>();
+        Node rootNode = null;
         for (Node node : flatNodes.values()) {
-            String nodeId = node.getId();
-            if (nodeId != null && !childIds.contains(nodeId)) {
-                roots.add(node);
+            String parentId = node.getParentId();
+            Node parent = parentId == null ? null : flatNodes.get(parentId);
+
+            if (parent == null) {
+                if (rootNode == null) {
+                    rootNode = node;
+                }
+            } else {
+                parent.addChild(node);
             }
         }
-
-        if (roots.isEmpty()) {
-            Node fallback = flatNodes.values().iterator().next();
-            this.root = fallback;
-            return fallback;
-        }
-
-        if (roots.size() == 1) {
-            this.root = roots.get(0);
-            return this.root;
-        }
-
-        // Si hay varias raices, se crea una raiz sintetica que las agrupa.
-        Node syntheticRoot = new Node("ROOT", "ROOT", "Root", "virtual", "Synthetic root");
-        for (Node rootNode : roots) {
-            syntheticRoot.addChild(rootNode);
-        }
-
-        this.root = syntheticRoot;
-        return syntheticRoot;
+        return rootNode;
     }
 
     @Override

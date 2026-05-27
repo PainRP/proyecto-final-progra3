@@ -27,7 +27,8 @@ public class PostgresTreeRepository implements TreeRepository {
     public Node save(Node node) {
         NodeEntity entity = toEntity(node);
         NodeEntity savedEntity = jpaNodeRepository.save(entity);
-        return toNode(savedEntity);
+        // El repositorio devuelve nodos planos, sin hijos anidados.
+        return toFlatNode(savedEntity);
     }
 
     @Override
@@ -45,7 +46,8 @@ public class PostgresTreeRepository implements TreeRepository {
         child.setParent(parent);
 
         NodeEntity savedChild = jpaNodeRepository.save(child);
-        return toNode(savedChild);
+        // El repositorio devuelve nodos planos, sin hijos anidados.
+        return toFlatNode(savedChild);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class PostgresTreeRepository implements TreeRepository {
         }
 
         Optional<NodeEntity> entity = jpaNodeRepository.findById(longId);
-        return entity.map(this::toNode).orElse(null);
+        return entity.map(this::toFlatNode).orElse(null);
     }
 
     @Override
@@ -109,26 +111,21 @@ public class PostgresTreeRepository implements TreeRepository {
         return entity;
     }
 
-    private Node toNode(NodeEntity entity) {
-        Node node = toFlatNode(entity);
-
-        if (entity.getChildren() != null) {
-            for (NodeEntity child : entity.getChildren()) {
-                node.addChild(toNode(child));
-            }
-        }
-
-        return node;
-    }
 
     private Node toFlatNode(NodeEntity entity) {
-        return new Node(
+        Node node = new Node(
                 String.valueOf(entity.getId()),
                 entity.getCode(),
                 entity.getName(),
                 entity.getType(),
                 entity.getDescription()
         );
+
+        if (entity.getParent() != null && entity.getParent().getId() != null) {
+            node.setParentId(String.valueOf(entity.getParent().getId()));
+        }
+
+        return node;
     }
 
     private Long parseId(String id) {

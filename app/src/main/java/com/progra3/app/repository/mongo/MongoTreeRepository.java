@@ -44,8 +44,10 @@ public class MongoTreeRepository implements TreeRepository {
                     .orElse(null);
         }
 
+        // El repositorio solo persiste nodos planos.
         mongoNodeRepository.save(new NodeDocument(node, finalParentId));
 
+        // Si llegan hijos, se persisten como nodos planos con su parentId.
         if (node.getChildren() != null) {
             for (Node child : node.getChildren()) {
                 saveFlatNode(child, node.getId());
@@ -58,17 +60,10 @@ public class MongoTreeRepository implements TreeRepository {
         return mongoNodeRepository.findById(id)
                 .map(document -> {
                     Node node = document.toNode();
+                    node.setParentId(document.getParentId());
+                    // Devolvemos un nodo plano: hijos vacios para evitar anidado en el repo.
                     node.setChildren(new ArrayList<>());
 
-                    for (NodeDocument childDocument : mongoNodeRepository.findAll()) {
-                        if (id.equals(childDocument.getParentId())) {
-                            Node child = findById(childDocument.getId());
-
-                            if (child != null) {
-                                node.getChildren().add(child);
-                            }
-                        }
-                    }
 
                     return node;
                 })
@@ -97,6 +92,7 @@ public class MongoTreeRepository implements TreeRepository {
 
         for (NodeDocument document : mongoNodeRepository.findAll()) {
             Node node = document.toNode();
+            node.setParentId(document.getParentId());
             node.setChildren(new ArrayList<>());
             nodes.put(node.getId(), node);
         }

@@ -9,6 +9,7 @@ public class Node {
     private String name;
     private String type;
     private String description;
+    private String parentId;
     private List<Node> children;
 
     
@@ -41,6 +42,9 @@ public class Node {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getParentId() { return parentId; }
+    public void setParentId(String parentId) { this.parentId = parentId; }
 
     public List<Node> getChildren() { return children; }
     public void setChildren(List<Node> children) { this.children = children; }

@@ -11,34 +11,17 @@ import java.util.Set;
 
 public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
-    private Node root;
-
     @Override
     public Node createRoot(Node rootNode) {
-        this.root = rootNode;
-        return this.root;
+        // Estrategia stateless: no se guarda estado interno.
+        return rootNode;
     }
 
     @Override
     public Node addChild(Node parent, Node childNode) {
+        childNode.setParentId(parent.getId());
         parent.addChild(childNode);
         return childNode;
-    }
-
-    @Override
-    public Node getRoot() {
-        return this.root;
-    }
-
-    @Override
-    public List<Node> getChildren(String parentId) {
-        Node parent = getSubtree(this.root, parentId);
-
-        if (parent == null || parent.getChildren() == null) {
-            return new ArrayList<>();
-        }
-
-        return parent.getChildren();
     }
 
     @Override
@@ -144,7 +127,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
 
     @Override
     public boolean hasCycle(Node root) {
-        return hasCycle(root, new HashSet<String>());
+        return hasCycle(root, new HashSet<>());
     }
 
     private boolean hasCycle(Node current, Set<String> visited) {
@@ -176,8 +159,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
             return null;
         }
 
-        Node rootNode = null;
-
+        // Reset de hijos para reconstruir el arbol desde nodos planos.
         for (Node node : flatNodes.values()) {
             if (node.getChildren() == null) {
                 node.setChildren(new ArrayList<>());
@@ -186,22 +168,20 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
             }
         }
 
+        Node rootNode = null;
         for (Node node : flatNodes.values()) {
-            String code = node.getCode();
+            String parentId = node.getParentId();
+            Node parent = parentId == null ? null : flatNodes.get(parentId);
 
-            if (code == null || !code.contains(".")) {
-                rootNode = node;
-            } else {
-                String parentCode = code.substring(0, code.lastIndexOf("."));
-                Node parent = findNodeByCode(flatNodes, parentCode);
-
-                if (parent != null) {
-                    parent.addChild(node);
+            if (parent == null) {
+                if (rootNode == null) {
+                    rootNode = node;
                 }
+            } else {
+                parent.addChild(node);
             }
         }
 
-        this.root = rootNode;
         return rootNode;
     }
 
@@ -225,15 +205,6 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
             }
         }
 
-        return null;
-    }
-
-    private Node findNodeByCode(Map<String, Node> flatNodes, String code) {
-        for (Node node : flatNodes.values()) {
-            if (code.equals(node.getCode())) {
-                return node;
-            }
-        }
 
         return null;
     }
@@ -243,7 +214,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
         List<Node> path = getPathFromRoot(root, nodeId);
 
         if (path.isEmpty()) {
-            return 0;
+            return -1;
         }
 
         return path.size() - 1;
