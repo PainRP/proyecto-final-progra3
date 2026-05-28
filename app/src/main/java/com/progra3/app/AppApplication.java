@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "com.progra3.treeengine"
 })
 public class AppApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(AppApplication.class, args);
     }

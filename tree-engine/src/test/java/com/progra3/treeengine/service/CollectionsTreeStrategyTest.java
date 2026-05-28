@@ -66,6 +66,119 @@ class CollectionsTreeStrategyTest {
         org.junit.jupiter.api.Assertions.assertNull(result);
     }
 
+    @Test
+    void shouldBuildTreeWithSystemRootZeroCorrectly() {
+        CollectionsTreeStrategy strategy = new CollectionsTreeStrategy();
+
+        Node root = new Node("100", "0", "Plan de Cuentas General", "SISTEMA", "Raiz unica");
+        Node childA = new Node("1", "1", "Activo", "GRUPO", "Activo");
+        Node childB = new Node("2", "2", "Pasivo", "GRUPO", "Pasivo");
+        Node grandChildA = new Node("3", "1.1", "Activo Corriente", "GRUPO", "Activo Corriente");
+
+        Map<String, Node> flatNodes = new LinkedHashMap<>();
+        flatNodes.put(root.getId(), root);
+        flatNodes.put(childA.getId(), childA);
+        flatNodes.put(childB.getId(), childB);
+        flatNodes.put(grandChildA.getId(), grandChildA);
+
+        Node result = strategy.buildFullTree(flatNodes);
+
+        org.junit.jupiter.api.Assertions.assertNotNull(result);
+        org.junit.jupiter.api.Assertions.assertEquals("100", result.getId());
+        org.junit.jupiter.api.Assertions.assertEquals("0", result.getCode());
+        org.junit.jupiter.api.Assertions.assertEquals(2, result.getChildren().size());
+        
+        Node resultChildA = result.getChildren().stream()
+                .filter(n -> "1".equals(n.getId()))
+                .findFirst()
+                .orElse(null);
+        org.junit.jupiter.api.Assertions.assertNotNull(resultChildA);
+        org.junit.jupiter.api.Assertions.assertEquals(1, resultChildA.getChildren().size());
+        org.junit.jupiter.api.Assertions.assertEquals("3", resultChildA.getChildren().get(0).getId());
+    }
+
+    @Test
+    void shouldHaveIdenticalTraversalBetweenBothStrategies() {
+        CollectionsTreeStrategy collectionsStrategy = new CollectionsTreeStrategy();
+        CustomTreeStrategy customStrategy = new CustomTreeStrategy();
+
+        // Create nodes out of order in HashMap
+        Node root = new Node("100", "0", "Plan de Cuentas General", "SISTEMA", "Raiz unica");
+        Node childA = new Node("1", "1", "Activo", "GRUPO", "Activo");
+        Node childB = new Node("2", "2", "Pasivo", "GRUPO", "Pasivo");
+        Node grandChildA = new Node("3", "1.1", "Activo Corriente", "GRUPO", "Activo Corriente");
+        Node grandChildB = new Node("4", "1.2", "Activo No Corriente", "GRUPO", "Activo No Corriente");
+        Node leafA = new Node("5", "1.1.1", "Caja", "CUENTA", "Caja");
+        Node leafB = new Node("6", "1.1.2", "Bancos", "CUENTA", "Bancos");
+
+        // Set up parent-child links for custom strategy (database style)
+        childA.addChild(grandChildA);
+        childA.addChild(grandChildB);
+        grandChildA.addChild(leafA);
+        grandChildA.addChild(leafB);
+        root.addChild(childA);
+        root.addChild(childB);
+
+        // Put nodes in a HashMap in an arbitrary (non-sorted) order to test order recovery
+        Map<String, Node> flatNodes = new java.util.HashMap<>();
+        flatNodes.put(leafB.getId(), leafB);
+        flatNodes.put(leafA.getId(), leafA);
+        flatNodes.put(grandChildB.getId(), grandChildB);
+        flatNodes.put(grandChildA.getId(), grandChildA);
+        flatNodes.put(childB.getId(), childB);
+        flatNodes.put(childA.getId(), childA);
+        flatNodes.put(root.getId(), root);
+
+        Node collectionsRoot = collectionsStrategy.buildFullTree(flatNodes);
+
+        // Setup separate copies of nodes for Custom Strategy, or reuse but let's make sure
+        // we test their buildFullTree. CustomTreeStrategy takes a map where parent-child links are set.
+        Node rootC = new Node("100", "0", "Plan de Cuentas General", "SISTEMA", "Raiz unica");
+        Node childAC = new Node("1", "1", "Activo", "GRUPO", "Activo");
+        Node childBC = new Node("2", "2", "Pasivo", "GRUPO", "Pasivo");
+        Node grandChildAC = new Node("3", "1.1", "Activo Corriente", "GRUPO", "Activo Corriente");
+        Node grandChildBC = new Node("4", "1.2", "Activo No Corriente", "GRUPO", "Activo No Corriente");
+        Node leafAC = new Node("5", "1.1.1", "Caja", "CUENTA", "Caja");
+        Node leafBC = new Node("6", "1.1.2", "Bancos", "CUENTA", "Bancos");
+
+        // Link in arbitrary order
+        grandChildAC.addChild(leafBC);
+        grandChildAC.addChild(leafAC);
+        childAC.addChild(grandChildBC);
+        childAC.addChild(grandChildAC);
+        rootC.addChild(childBC);
+        rootC.addChild(childAC);
+
+        Map<String, Node> flatNodesC = new java.util.HashMap<>();
+        flatNodesC.put(leafBC.getId(), leafBC);
+        flatNodesC.put(leafAC.getId(), leafAC);
+        flatNodesC.put(grandChildBC.getId(), grandChildBC);
+        flatNodesC.put(grandChildAC.getId(), grandChildAC);
+        flatNodesC.put(childBC.getId(), childBC);
+        flatNodesC.put(childAC.getId(), childAC);
+        flatNodesC.put(rootC.getId(), rootC);
+
+        Node customRoot = customStrategy.buildFullTree(flatNodesC);
+
+        // Run DFS on both
+        List<TreeTraversalNode> dfsCollections = collectionsStrategy.getTraversal(collectionsRoot, "DFS");
+        List<TreeTraversalNode> dfsCustom = customStrategy.getTraversal(customRoot, "DFS");
+
+        org.junit.jupiter.api.Assertions.assertEquals(dfsCustom.size(), dfsCollections.size());
+        for (int i = 0; i < dfsCustom.size(); i++) {
+            org.junit.jupiter.api.Assertions.assertEquals(dfsCustom.get(i).getNode().getCode(), dfsCollections.get(i).getNode().getCode());
+        }
+
+        // Run BFS on both
+        List<TreeTraversalNode> bfsCollections = collectionsStrategy.getTraversal(collectionsRoot, "BFS");
+        List<TreeTraversalNode> bfsCustom = customStrategy.getTraversal(customRoot, "BFS");
+
+        org.junit.jupiter.api.Assertions.assertEquals(bfsCustom.size(), bfsCollections.size());
+        for (int i = 0; i < bfsCustom.size(); i++) {
+            org.junit.jupiter.api.Assertions.assertEquals(bfsCustom.get(i).getNode().getCode(), bfsCollections.get(i).getNode().getCode());
+        }
+    }
+
     private Node buildTree() {
         Node root = new Node("1", "ROOT", "Raiz", "ROOT", "Nodo raiz");
 

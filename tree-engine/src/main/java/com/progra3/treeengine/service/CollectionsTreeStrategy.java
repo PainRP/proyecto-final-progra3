@@ -173,6 +173,7 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
     @Override
     public Node buildFullTree(Map<String, Node> flatNodes) {
         if (flatNodes == null || flatNodes.isEmpty()) {
+            this.root = null;
             return null;
         }
 
@@ -186,14 +187,28 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
             }
         }
 
+        // Find system root "0" if it exists in flatNodes
+        Node systemRoot = findNodeByCode(flatNodes, "0");
+
         for (Node node : flatNodes.values()) {
             String code = node.getCode();
+            if (code == null) continue;
 
-            if (code == null || !code.contains(".")) {
+            if (code.equals("0")) {
                 rootNode = node;
+            } else if (!code.contains(".")) {
+                if (systemRoot != null) {
+                    systemRoot.addChild(node);
+                } else {
+                    rootNode = node;
+                }
             } else {
                 String parentCode = code.substring(0, code.lastIndexOf("."));
                 Node parent = findNodeByCode(flatNodes, parentCode);
+
+                if (parent == null && systemRoot != null) {
+                    parent = systemRoot;
+                }
 
                 if (parent != null) {
                     parent.addChild(node);
@@ -201,7 +216,16 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
             }
         }
 
+        if (rootNode == null && !flatNodes.isEmpty()) {
+            if (systemRoot != null) {
+                rootNode = systemRoot;
+            } else {
+                rootNode = flatNodes.values().iterator().next();
+            }
+        }
+
         this.root = rootNode;
+        sortChildrenByCode(rootNode);
         return rootNode;
     }
 
@@ -236,6 +260,26 @@ public class CollectionsTreeStrategy implements TreeAlgorithmStrategy {
         }
 
         return null;
+    }
+
+    private void sortChildrenByCode(Node node) {
+        if (node == null) {
+            return;
+        }
+        List<Node> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            children.sort((n1, n2) -> {
+                String c1 = n1.getCode();
+                String c2 = n2.getCode();
+                if (c1 == null && c2 == null) return 0;
+                if (c1 == null) return 1;
+                if (c2 == null) return -1;
+                return c1.compareTo(c2);
+            });
+            for (Node child : children) {
+                sortChildrenByCode(child);
+            }
+        }
     }
 
     @Override

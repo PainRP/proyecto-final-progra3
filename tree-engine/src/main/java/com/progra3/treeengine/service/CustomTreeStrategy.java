@@ -226,11 +226,13 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
         if (roots.isEmpty()) {
             Node fallback = flatNodes.values().iterator().next();
             this.root = fallback;
+            sortChildrenByCode(fallback);
             return fallback;
         }
 
         if (roots.size() == 1) {
             this.root = roots.get(0);
+            sortChildrenByCode(this.root);
             return this.root;
         }
 
@@ -241,6 +243,7 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
         }
 
         this.root = syntheticRoot;
+        sortChildrenByCode(syntheticRoot);
         return syntheticRoot;
     }
 
@@ -279,5 +282,25 @@ public class CustomTreeStrategy implements TreeAlgorithmStrategy {
             return new ArrayList<>();
         }
         return new ArrayList<>(path.subList(0, path.size() - 1));
+    }
+
+    private void sortChildrenByCode(Node node) {
+        if (node == null) {
+            return;
+        }
+        List<Node> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            children.sort((n1, n2) -> {
+                String c1 = n1.getCode();
+                String c2 = n2.getCode();
+                if (c1 == null && c2 == null) return 0;
+                if (c1 == null) return 1;
+                if (c2 == null) return -1;
+                return c1.compareTo(c2);
+            });
+            for (Node child : children) {
+                sortChildrenByCode(child);
+            }
+        }
     }
 }
