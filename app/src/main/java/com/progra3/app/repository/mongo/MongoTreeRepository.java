@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -94,11 +95,24 @@ public class MongoTreeRepository implements TreeRepository {
     @Override
     public Map<String, Node> findAll() {
         Map<String, Node> nodes = new HashMap<>();
+        List<NodeDocument> documents = mongoNodeRepository.findAll();
 
-        for (NodeDocument document : mongoNodeRepository.findAll()) {
+        // 1. First pass: Create all flat Node objects
+        for (NodeDocument document : documents) {
             Node node = document.toNode();
             node.setChildren(new ArrayList<>());
             nodes.put(node.getId(), node);
+        }
+
+        // 2. Second pass: Link parents and children
+        for (NodeDocument document : documents) {
+            if (document.getParentId() != null) {
+                Node parentNode = nodes.get(document.getParentId());
+                Node childNode = nodes.get(document.getId());
+                if (parentNode != null && childNode != null) {
+                    parentNode.addChild(childNode);
+                }
+            }
         }
 
         return nodes;

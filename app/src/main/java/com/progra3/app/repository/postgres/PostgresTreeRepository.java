@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +85,22 @@ public class PostgresTreeRepository implements TreeRepository {
 
         List<NodeEntity> entities = jpaNodeRepository.findAll();
 
+        // 1. First pass: Create flat Node objects with empty/initialized children lists
         for (NodeEntity entity : entities) {
             Node node = toFlatNode(entity);
+            node.setChildren(new ArrayList<>());
             flatNodes.put(node.getId(), node);
+        }
+
+        // 2. Second pass: Link parents and children
+        for (NodeEntity entity : entities) {
+            if (entity.getParent() != null) {
+                Node parentNode = flatNodes.get(String.valueOf(entity.getParent().getId()));
+                Node childNode = flatNodes.get(String.valueOf(entity.getId()));
+                if (parentNode != null && childNode != null) {
+                    parentNode.addChild(childNode);
+                }
+            }
         }
 
         return flatNodes;
