@@ -2,9 +2,8 @@
 ## Sistema de Gestión de Estructuras Jerárquicas con Árboles
 
 ## 🔗 Enlaces Importantes
-* **Tablero Trello:** [Reemplazar con link al tablero]
-* **Repositorio GitHub:** [Reemplazar con link al repo]
-* **Documentación OpenAPI / Swagger:** [Reemplazar con la URL local de Swagger, ej. `http://localhost:8080/swagger-ui.html`]
+* **Tablero Trello:** `https://trello.com/invite/b/69ffd03d0bd126f216af5c49/ATTIf69c835bc59b36cc85774f485b03fc79E4565C26/proyecto-final-grupo-1`
+* **Documentación OpenAPI / Swagger:** [Reemplazar con la URL local de Swagger, ej. `http://localhost:8081/swagger-ui.html`]
 
 ---
 
